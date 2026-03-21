@@ -20,9 +20,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # external packages
+    # External packages
     "rest_framework",
-    # internal apps
+    # Internal apps
+    "ecommerce.product",
 ]
 
 MIDDLEWARE = [
