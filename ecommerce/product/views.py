@@ -19,7 +19,7 @@ class CategoryView(viewsets.ViewSet):
     A simple Viewset for viewing all categories
     """
 
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().isactive()
 
     @extend_schema(responses=CategorySerializer)
     def list(self, request):
@@ -30,7 +30,7 @@ class CategoryView(viewsets.ViewSet):
 class BrandView(viewsets.ViewSet):
     """A simple Viewset for viewing all brands"""
 
-    queryset = Brand.objects.all()
+    queryset = Brand.objects.all().isactive()
 
     @extend_schema(responses=BrandSerializer)
     def list(self, request):
@@ -41,7 +41,7 @@ class BrandView(viewsets.ViewSet):
 class ProductView(viewsets.ViewSet):
     """A simple Viewset for viewing all products"""
 
-    queryset = Product.objects.all()
+    queryset = Product.objects.all().isactive()
 
     lookup_field = "slug"
 
