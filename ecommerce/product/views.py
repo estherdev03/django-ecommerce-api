@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
 from django.db import connection
+from django.db.models import Prefetch
 
 # from pygments import highlight
 # from pygments.formatters import TerminalFormatter
@@ -47,7 +48,9 @@ class ProductView(viewsets.ViewSet):
 
     def retrieve(self, request, slug=None):
         serializer = ProductSerializer(
-            self.queryset.filter(slug=slug).select_related("category", "brand"),
+            Product.objects.filter(slug=slug)
+            .select_related("category", "brand")
+            .prefetch_related(Prefetch("product_line__product_image")),
             many=True,
         )
         data = Response(serializer.data)

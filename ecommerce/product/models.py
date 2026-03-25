@@ -61,6 +61,8 @@ class ProductLine(models.Model):
     objects = ActiveQueryset.as_manager()
 
     def clean(self):
+        if self.product_id is None:  # product not saved yet, skip validation
+            return
         qs = ProductLine.objects.filter(product=self.product)
         for obj in qs:
             if self.id != obj.id and self.order == obj.order:
@@ -76,15 +78,16 @@ class ProductLine(models.Model):
 
 
 class ProductImage(models.Model):
-    name = models.CharField(max_length=100)
     alternative_text = models.CharField(max_length=100)
-    url = models.ImageField(upload_to=None)
+    url = models.ImageField(upload_to=None, default="test.jpg")
     product_line = models.ForeignKey(
         ProductLine, on_delete=models.CASCADE, related_name="product_image"
     )
     order = OrderField(unique_for_field="product_line", blank=True)
 
     def clean(self):
+        if self.product_line_id is None:
+            return
         qs = ProductImage.objects.filter(product_line=self.product_line)
         for obj in qs:
             if self.id != obj.id and self.order == obj.order:
@@ -96,4 +99,4 @@ class ProductImage(models.Model):
         return super(ProductImage, self).save(*args, **kwargs)
 
     def __str__(self):
-        return str(self.name)
+        return str(self.url)
