@@ -1,7 +1,17 @@
 from django.contrib import admin
 
-from .models import Category, Product, Brand
+from .models import Category, Product, Brand, ProductLine
 
-admin.site.register(Product)
+
+class ProductLineInLine(admin.TabularInline):
+    model = ProductLine
+
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    inlines = [ProductLineInLine]
+
+
 admin.site.register(Category)
 admin.site.register(Brand)
+admin.site.register(ProductLine)
