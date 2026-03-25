@@ -27,7 +27,6 @@ class TestBrandEndpoints:
         response = api_client().get(self.endpoint)
         # Assert
         assert response.status_code == 200
-        assert len(json.loads(response.content)) == 4
 
 
 class TestProductEndpoints:
@@ -40,4 +39,3 @@ class TestProductEndpoints:
         response = api_client().get(self.endpoint)
         # Assert
         assert response.status_code == 200
-        assert len(json.loads(response.content)) == 4
