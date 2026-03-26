@@ -8,6 +8,9 @@ from .factories import (
     ProductFactory,
     ProductLineFactory,
     ProductImageFactory,
+    ProductTypeFactory,
+    AttributeFactory,
+    AttributeValueFactory,
 )
 
 
@@ -17,6 +20,9 @@ register(ProductFactory)
 register(ProductFactory)
 register(ProductLineFactory)
 register(ProductImageFactory)
+register(ProductTypeFactory)
+register(AttributeValueFactory)
+register(AttributeFactory)
 
 
 @pytest.fixture
