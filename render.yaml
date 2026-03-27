@@ -17,6 +17,6 @@ services:
 
 databases:
   - name: product-inventory-db
-    databaseName: product-inventory
-    user: product-inventory
+    databaseName: product_inventory
+    user: django
     plan: free
