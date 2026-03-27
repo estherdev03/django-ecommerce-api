@@ -56,7 +56,7 @@ A RESTful product inventory API built with Django and Django REST Framework. Thi
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/django-drf-ecommerce.git
+   git clone https://github.com/estherdev03/django-ecommerce-api.git
    cd django-drf-ecommerce
    ```
 
