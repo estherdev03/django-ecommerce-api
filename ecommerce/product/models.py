@@ -6,15 +6,15 @@ from django.core.exceptions import ValidationError
 
 
 class ActiveQueryset(models.QuerySet):
-    def isactive(self):
+    def is_active(self):
         return self.filter(is_active=True)
 
 
 class Category(MPTTModel):
-    name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(max_length=255)
-    parent = TreeForeignKey("self", on_delete=models.PROTECT, null=True, blank=True)
+    name = models.CharField(max_length=235, unique=True)
+    slug = models.SlugField(max_length=255, unique=True)
     is_active = models.BooleanField(default=False)
+    parent = TreeForeignKey("self", on_delete=models.PROTECT, null=True, blank=True)
     objects = ActiveQueryset.as_manager()
 
     class MTTPMeta:
@@ -24,27 +24,26 @@ class Category(MPTTModel):
         return self.name
 
 
-class Brand(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    is_active = models.BooleanField(default=False)
-    objects = ActiveQueryset.as_manager()
-
-    def __str__(self):
-        return self.name
-
-
 class Product(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=235)
     slug = models.SlugField(max_length=255)
+    pid = models.CharField(max_length=10, unique=True)
     description = models.TextField(blank=True)
     is_digital = models.BooleanField(default=False)
-    brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
-    is_active = models.BooleanField(default=False)
-    product_type = models.ForeignKey("ProductType", on_delete=models.PROTECT)
     category = TreeForeignKey(
-        "Category", null=True, blank=True, on_delete=models.SET_NULL
+        "Category", null=True, blank=True, on_delete=models.PROTECT
+    )
+    is_active = models.BooleanField(default=False)
+    product_type = models.ForeignKey(
+        "ProductType", on_delete=models.PROTECT, related_name="product_type"
     )
     objects = ActiveQueryset.as_manager()
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    attribute_value = models.ManyToManyField(
+        "AttributeValue",
+        through="ProductAttributeValue",
+        related_name="product_attr_value",
+    )
 
     def __str__(self):
         return self.name
@@ -55,7 +54,7 @@ class Attribute(models.Model):
     description = models.TextField(blank=True)
 
     def __str__(self):
-        return str(self.name)
+        return self.name
 
 
 class AttributeValue(models.Model):
@@ -107,20 +106,24 @@ class ProductLineAttributeValue(models.Model):
 
 
 class ProductLine(models.Model):
-    price = models.DecimalField(decimal_places=2, max_digits=5)
-    sku = models.CharField(max_length=100)
+    price = models.DecimalField(decimal_places=2, max_digits=10)
+    sku = models.CharField(max_length=10)
     stock_qty = models.IntegerField()
     product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, related_name="product_line"
+        Product, on_delete=models.PROTECT, related_name="product_line"
     )
     is_active = models.BooleanField(default=False)
     order = OrderField(unique_for_field="product", blank=True)
-
+    weight = models.FloatField()
+    product_type = models.ForeignKey(
+        "ProductType", on_delete=models.PROTECT, related_name="product_line_type"
+    )
     attribute_value = models.ManyToManyField(
         AttributeValue,
         through="ProductLineAttributeValue",
         related_name="product_line_attribute_value",
     )
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
     objects = ActiveQueryset.as_manager()
 
     def clean(self):
@@ -162,11 +165,12 @@ class ProductImage(models.Model):
         return super(ProductImage, self).save(*args, **kwargs)
 
     def __str__(self):
-        return str(self.url)
+        return f"{self.product_line.sku}_img"
 
 
 class ProductType(models.Model):
     name = models.CharField(max_length=100)
+    parent = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True)
     attribute = models.ManyToManyField(
         Attribute, through="ProductTypeAttribute", related_name="product_type_attribute"
     )
@@ -185,3 +189,19 @@ class ProductTypeAttribute(models.Model):
 
     class Meta:
         unique_together = ("attribute", "product_type")
+
+
+class ProductAttributeValue(models.Model):
+    attribute_value = models.ForeignKey(
+        AttributeValue,
+        on_delete=models.CASCADE,
+        related_name="product_value_av",
+    )
+    product = models.ForeignKey(
+        "Product",
+        on_delete=models.CASCADE,
+        related_name="product_value_pl",
+    )
+
+    class Meta:
+        unique_together = ("attribute_value", "product")

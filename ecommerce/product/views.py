@@ -11,8 +11,8 @@ from django.db.models import Prefetch
 # from pygments.lexers import SqlLexer
 # from sqlparse import format
 
-from .models import Category, Brand, Product
-from .serializers import CategorySerializer, BrandSerializer, ProductSerializer
+from .models import Category, Product
+from .serializers import CategorySerializer, ProductSerializer
 
 
 class CategoryView(viewsets.ViewSet):
@@ -20,7 +20,7 @@ class CategoryView(viewsets.ViewSet):
     A simple Viewset for viewing all categories
     """
 
-    queryset = Category.objects.all().isactive()
+    queryset = Category.objects.all().is_active()
 
     @extend_schema(responses=CategorySerializer)
     def list(self, request):
@@ -28,28 +28,17 @@ class CategoryView(viewsets.ViewSet):
         return Response(serializer.data)
 
 
-class BrandView(viewsets.ViewSet):
-    """A simple Viewset for viewing all brands"""
-
-    queryset = Brand.objects.all().isactive()
-
-    @extend_schema(responses=BrandSerializer)
-    def list(self, request):
-        serializer = BrandSerializer(self.queryset, many=True)
-        return Response(serializer.data)
-
-
 class ProductView(viewsets.ViewSet):
     """A simple Viewset for viewing all products"""
 
-    queryset = Product.objects.all().isactive()
+    queryset = Product.objects.all().is_active()
 
     lookup_field = "slug"
 
     def retrieve(self, request, slug=None):
         serializer = ProductSerializer(
             Product.objects.filter(slug=slug)
-            .select_related("category", "brand")
+            .select_related("category")
             .prefetch_related(Prefetch("product_line__product_image"))
             .prefetch_related(Prefetch("product_line__attribute_value__attribute")),
             many=True,
