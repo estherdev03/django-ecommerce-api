@@ -13,6 +13,7 @@ services:
         fromDatabase:
           name: ecommerce-db
           property: connectionString
+    plan: free
 
 databases:
   - name: ecommerce-db
