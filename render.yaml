@@ -1,9 +1,10 @@
 services:
   - type: web
-    name: ecommerce-api
+    name: product-inventory-api
     runtime: python
     buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate"
     startCommand: "gunicorn ecommerce.wsgi:application"
+    plan: free
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: ecommerce.settings.production
@@ -11,12 +12,11 @@ services:
         generateValue: true
       - key: DATABASE_URL
         fromDatabase:
-          name: ecommerce-db
+          name: product-inventory-db
           property: connectionString
-    plan: free
 
 databases:
-  - name: ecommerce-db
-    databaseName: ecommerce
-    user: ecommerce
+  - name: product-inventory-db
+    databaseName: product-inventory
+    user: product-inventory
     plan: free
